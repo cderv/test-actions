@@ -4,7 +4,7 @@ name: test-checkout-repo
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the main branch
-on: [workflow_dispatch]
+on: [workflow_dispatch, pull_request]
 
 jobs:
   using-r:
@@ -13,10 +13,7 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-      - name: Retrieve knitr-examples
-        uses: actions/checkout@v2
-        with:
-          repository: yihui/knitr-examples
-          path: knitr-examples
-          clean: false
+      - uses: actions/checkout@v2
+      - name: Retrieve knitr example
+        uses: ./.github/actions/checkout-knitr-examples
       - run: ls -lisa
