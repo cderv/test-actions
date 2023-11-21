@@ -4,7 +4,7 @@ name: test-checkout-repo
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the main branch
-on: [workflow_dispatch]
+on: [workflow_dispatch, pull_request]
 
 jobs:
   using-r:
@@ -13,10 +13,20 @@ jobs:
     strategy:
       fail-fast: false
     steps:
+      # - uses: hmarr/debug-action@v2
+      - name: Determine branch name
+        id: check-branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          branch=$(gh api repos/yihui/knitr-examples/branches | jq -cr '.[] | select(.name == "${{ github.head_ref }}") | .name')
+          echo ::set-output name=ref::$(echo $branch)
+        shell: bash
       - name: Retrieve knitr-examples
         uses: actions/checkout@v2
         with:
           repository: yihui/knitr-examples
           path: knitr-examples
+          ref: ${{ steps.check-branch.outputs.ref }}
           clean: false
       - run: ls -lisa
